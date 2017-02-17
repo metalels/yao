@@ -26,9 +26,20 @@ module Yao::Resources
       Time.parse first_sample_timestamp
     end
 
+    def get_sample(name)
+      if link = links.find{|l| l["rel"] == name }
+        meter, q = link["href"].split("/").last.split("?")
+        q = q.split("&").map{|v| v.split("=")}.to_a
+        q.push ["q.field", "meter"]
+        q.push ["q.value", meter]
+        meter = nil
+        Yao::Sample.list q
+      end
+    end
+
     def get_meter(name)
       if link = links.find{|l| l["rel"] == name }
-        Yao::Sample.list(link["href"])
+        Yao::Meter.get link["href"]
       end
     end
 
